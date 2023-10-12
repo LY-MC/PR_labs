@@ -8,6 +8,7 @@ MEDIA_FOLDER = 'server_media'
 if not os.path.exists(MEDIA_FOLDER):
     os.mkdir(MEDIA_FOLDER)
 
+
 def create_server_socket(host, port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -60,7 +61,6 @@ def handle_message(message, client_socket, rooms):
 
         if room not in rooms:
             rooms[room] = []
-
 
         rooms[room].append(client_socket)
 
@@ -124,6 +124,7 @@ def handle_upload_command(message, client_socket, rooms):
                 file.write(data)
                 received_size += len(data)
 
+        print(f"{name} uploaded the {file_name} file")
         notification_message = {
             "type": "notification",
             "payload": {
@@ -133,25 +134,23 @@ def handle_upload_command(message, client_socket, rooms):
         server_broadcast(client_socket, rooms[room], json.dumps(notification_message).encode('utf-8'))
 
 
+
+
 def handle_download_command(message, client_socket, rooms):
     payload = message.get("payload")
-    name = payload.get("name")
     room = payload.get("room")
     file_name = payload.get("file_name")
 
     file_path = os.path.join(MEDIA_FOLDER, room, file_name)
 
     if os.path.exists(file_path):
-        file_size = os.path.getsize(file_path)
 
         stream_message = {
             "type": "download-ack",
             "payload": {
                 "file_name": file_name,
-                "file_size": file_size
             }
         }
-
         client_socket.send(json.dumps(stream_message).encode('utf-8'))
 
         with open(file_path, 'rb') as file:
