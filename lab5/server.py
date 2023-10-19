@@ -134,8 +134,6 @@ def handle_upload_command(message, client_socket, rooms):
         server_broadcast(client_socket, rooms[room], json.dumps(notification_message).encode('utf-8'))
 
 
-
-
 def handle_download_command(message, client_socket, rooms):
     payload = message.get("payload")
     room = payload.get("room")
